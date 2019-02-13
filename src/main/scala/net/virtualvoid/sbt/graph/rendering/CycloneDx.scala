@@ -16,39 +16,65 @@
 
 package net.virtualvoid.sbt.graph.rendering
 
-import net.virtualvoid.sbt.graph.{Module, ModuleGraph}
+import net.virtualvoid.sbt.graph.{ Module, ModuleGraph }
 
-import scala.xml.{NodeBuffer, XML}
+import scala.collection.AbstractSeq
+import scala.xml.{ Elem, Node, NodeBuffer, XML }
+
+/*
+  todo
+  - take a look at a sample BOM from other project
+  - remove project artifact
+  - publisher
+  - scope
+  - hashes
+  - copyright
+  - purl
+  - cpe
+  - modified
+
+ */
 
 object CycloneDx {
   def saveAsCycloneDx(graph: ModuleGraph, outputFile: String): Unit = {
-    val componentsXml =
-      for (n ← graph.nodes) yield {
-        val c: Module = n
-        val licenseXml = n.license.map {
-          licenseName ⇒
-            <licenses>
-              <license>
-                <id>{ licenseName }</id>
-              </license>
-            </licenses>
-        }.getOrElse(new NodeBuffer())
-
-        <component type="library">
-          <group>{ n.id.organisation }</group>
-          <name>{ n.id.name }</name>
-          <version>{ n.id.version }</version>
-          { licenseXml }
-        </component>
-      }
-
     val xml =
       <bom xmlns="http://cyclonedx.org/schema/bom/1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="1" xsi:schemaLocation="http://cyclonedx.org/schema/bom/1.0 http://cyclonedx.org/schema/bom/1.0">
         <components>
-          { componentsXml }
+          { componentsXml(graph) }
         </components>
       </bom>
 
     XML.save(outputFile, xml)
   }
+
+  private def componentsXml(graph: ModuleGraph) =
+    for (n ← graph.nodes) yield {
+      <component type="library">
+        <group>
+          { n.id.organisation }
+        </group>
+        <name>
+          { n.id.name }
+        </name>
+        <version>
+          { n.id.version }
+        </version>
+        { licensesXml(n) }
+        <modified>
+          { false }
+        </modified>
+      </component>
+    }
+
+  private def licensesXml(m: Module) =
+    m.license.map {
+      licenseName ⇒
+        <licenses>
+          <license>
+            <id>
+              { licenseName }
+            </id>
+          </license>
+        </licenses>
+    }.getOrElse(new NodeBuffer())
 }

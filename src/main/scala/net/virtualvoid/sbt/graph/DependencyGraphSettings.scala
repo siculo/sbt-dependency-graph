@@ -102,11 +102,11 @@ object DependencyGraphSettings {
       },
 
       // GraphML support
-      dependencyGraphMLFile := { target.value / "dependencies-%s.graphml".format(config.toString) },
+      dependencyGraphMLFile := { target.value / "dependencies-%s.bom".format(config.toString) },
       dependencyGraphML := dependencyGraphMLTask.value,
 
       // CycloneDX support
-      dependencyCycloneDxFile := { target.value / "dependencies-%s.cyclonedx.xml".format(config.toString) },
+      dependencyCycloneDxFile := { target.value / "dependencies-%s.bom.xml".format(config.toString) },
       dependencyCycloneDx := dependencyCycloneDxTask.value,
 
       whatDependsOn := {
