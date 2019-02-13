@@ -16,39 +16,39 @@
 
 package net.virtualvoid.sbt.graph.rendering
 
-import net.virtualvoid.sbt.graph.ModuleGraph
+import net.virtualvoid.sbt.graph.{Module, ModuleGraph}
 
-import scala.xml.XML
+import scala.xml.{NodeBuffer, XML}
 
 object CycloneDx {
   def saveAsCycloneDx(graph: ModuleGraph, outputFile: String): Unit = {
-    val nodesXml =
-      for (n ← graph.nodes)
-        yield <node id={ n.id.idString }><data key="d0">
-                                           <y:ShapeNode>
-                                             <y:NodeLabel>{ n.id.idString }</y:NodeLabel>
-                                           </y:ShapeNode>
-                                         </data></node>
+    val componentsXml =
+      for (n ← graph.nodes) yield {
+        val c: Module = n
+        val licenseXml = n.license.map {
+          licenseName ⇒
+            <licenses>
+              <license>
+                <id>{ licenseName }</id>
+              </license>
+            </licenses>
+        }.getOrElse(new NodeBuffer())
 
-    val edgesXml =
-      for (e ← graph.edges)
-        yield <edge source={ e._1.idString } target={ e._2.idString }/>
+        <component type="library">
+          <group>{ n.id.organisation }</group>
+          <name>{ n.id.name }</name>
+          <version>{ n.id.version }</version>
+          { licenseXml }
+        </component>
+      }
 
     val xml =
-      <graphml xmlns="http://graphml.graphdrawing.org/xmlns" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:y="http://www.yworks.com/xml/graphml" xsi:schemaLocation="http://graphml.graphdrawing.org/xmlns http://graphml.graphdrawing.org/xmlns/1.0/graphml.xsd">
-        <key for="node" id="d0" yfiles.type="nodegraphics"/>
-        <graph id="Graph" edgedefault="undirected">
-          { nodesXml }
-          { edgesXml }
-        </graph>
-      </graphml>
-
-    val new_xml =
       <bom xmlns="http://cyclonedx.org/schema/bom/1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="1" xsi:schemaLocation="http://cyclonedx.org/schema/bom/1.0 http://cyclonedx.org/schema/bom/1.0">
         <components>
+          { componentsXml }
         </components>
       </bom>
 
-    XML.save(outputFile, new_xml)
+    XML.save(outputFile, xml)
   }
 }
