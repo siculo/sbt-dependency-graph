@@ -105,6 +105,10 @@ object DependencyGraphSettings {
       dependencyGraphMLFile := { target.value / "dependencies-%s.graphml".format(config.toString) },
       dependencyGraphML := dependencyGraphMLTask.value,
 
+      // CycloneDX support
+      dependencyCycloneDxFile := { target.value / "dependencies-%s.cyclonedx.xml".format(config.toString) },
+      dependencyCycloneDx := dependencyCycloneDxTask.value,
+
       whatDependsOn := {
         val ArtifactPattern(org, name, versionFilter) = artifactPatternParser.parsed
         val graph = moduleGraph.value
@@ -155,6 +159,14 @@ object DependencyGraphSettings {
       val resultFile = dependencyGraphMLFile.value
       rendering.GraphML.saveAsGraphML(moduleGraph.value, resultFile.getAbsolutePath)
       streams.value.log.info("Wrote dependency graph to '%s'" format resultFile)
+      resultFile
+    }
+
+  def dependencyCycloneDxTask =
+    Def.task {
+      val resultFile = dependencyCycloneDxFile.value
+      rendering.CycloneDx.saveAsCycloneDx(moduleGraph.value, resultFile.getAbsolutePath)
+      streams.value.log.info("Wrote CycloneDx BOM to '%s'" format resultFile)
       resultFile
     }
 

@@ -29,6 +29,12 @@ trait DependencyGraphKeys {
   val dependencyGraphML = TaskKey[File](
     "dependency-graph-ml",
     "Creates a graphml file containing the dependency-graph for a project")
+  val dependencyCycloneDxFile = SettingKey[File](
+    "dependency-cyclone-dx-file",
+    "The location the CycloneDx file should be generated at")
+  val dependencyCycloneDx = TaskKey[File](
+    "dependency-cyclone-dx",
+    "Creates a CycloneDx file containing the CycloneDx BOM for a project")
   val dependencyDotFile = SettingKey[File](
     "dependency-dot-file",
     "The location the dot file should be generated at")
