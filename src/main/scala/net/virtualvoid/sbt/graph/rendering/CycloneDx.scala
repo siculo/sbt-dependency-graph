@@ -23,28 +23,25 @@ import scala.xml.{ Elem, Node, NodeBuffer, XML }
 
 /*
   todo
-  - take a look at a sample BOM from other project
-  - remove project artifact
+  - License ID
+  - cpe
+  - hashes
   - publisher
   - scope
-  - hashes
   - copyright
   - purl
-  - cpe
-  - modified
-
+  - remove project artifact
  */
 
 object CycloneDx {
   def saveAsCycloneDx(graph: ModuleGraph, outputFile: String): Unit = {
     val xml =
-      <bom xmlns="http://cyclonedx.org/schema/bom/1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="1" xsi:schemaLocation="http://cyclonedx.org/schema/bom/1.0 http://cyclonedx.org/schema/bom/1.0">
+      <bom xmlns="http://cyclonedx.org/schema/bom/1.0" version="1">
         <components>
           { componentsXml(graph) }
         </components>
       </bom>
-
-    XML.save(outputFile, xml)
+    XML.save(outputFile, xml, xmlDecl = true)
   }
 
   private def componentsXml(graph: ModuleGraph) =
